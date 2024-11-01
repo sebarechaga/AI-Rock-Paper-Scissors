@@ -1,7 +1,13 @@
 let humanScore = 0;
 let computerScore = 0;
+let draws = 0;
 let round = 1;
 let gameWon = false;
+let transitionMatrix = [
+    [0, 0, 0],
+    [0, 0, 0],
+    [0, 0, 0],
+]
 
 function getComputerChoice() {
     let computerChoice = Math.floor(Math.random() * 3);
@@ -17,16 +23,7 @@ function getComputerChoice() {
             break;
     }
 }
-/*
-function getHumanChoice() {
-    let humanChoice = prompt("Choose rock, paper, or scissors.");
-    while(!isValidChoice(humanChoice)) {
-        alert("Invalid choice.")
-        humanChoice = prompt("Choose rock, paper, or scissors.");
-    }
-    return humanChoice.toLowerCase();
-}
-*/
+
 function getHumanChoice(e) {
     let humanChoice;
     let id = e.target.id;
@@ -57,18 +54,20 @@ function isValidChoice(choice) {
 }
 
 function determineWinner() {
-    if(computerScore >= 5) {
+    if(computerScore >= 1000) {
         winner.textContent = ("You lose. Refresh the page to play again.");
         gameWon = true;
         results.appendChild(winner);
     }
-    else if (humanScore >= 5){
+    else if (humanScore >= 1000){
         winner.textContent = ("You win. Refresh the page to play again.");
         gameWon = true;
         results.appendChild(winner);
     }
 }
 function playGame(e) {
+
+    updateDecisionMatrix();
 
     function playRound(humanChoice, computerChoice) {
 
@@ -86,6 +85,7 @@ function playGame(e) {
             case "rock":
                 if (computerChoice === "rock") {
                     resultText.textContent = ("You both picked rock. Try again.");
+                    draws++;
                 }
                 else if (computerChoice === "paper") {
                     resultText.textContent = ("Paper beats rock. You lose.");
@@ -107,6 +107,7 @@ function playGame(e) {
                         break;
                     case "paper":
                         resultText.textContent = ("You both chose paper. Try again.");
+                        draws++;
                         break;
                     case "scissors":
                         resultText.textContent = ("Scissors beats paper. You lose.");
@@ -129,6 +130,7 @@ function playGame(e) {
                         break;
                     case "scissors":
                         resultText.textContent = ("You both chose scissors. Try again.");
+                        draws++;
                         break;
                 }
                 break;
@@ -140,6 +142,8 @@ function playGame(e) {
         roundResult.appendChild(computerChoiceText);
         roundResult.appendChild(resultText);
         results.appendChild(roundResult);
+
+        updateDecisionMatrix();
     }
 
     const humanChoice = getHumanChoice(e);
@@ -151,8 +155,21 @@ function playGame(e) {
 
     determineWinner();
 }
+function updateDecisionMatrix(playerMove, computerMove) {
+    updateTable();
+}
+function updateTable() {
+    const table = document.getElementById("transition-matrix");
+    const cells = table.getElementsByClassName("cell");
+
+    for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 3; j++) {
+            cells[(i * 3) + j].textContent = transitionMatrix[i][j].toFixed(2);
+        }
+    }
+}
 function scoreString() {
-    return ("You: " + humanScore + ", Computer: " + computerScore);
+    return ("You: " + humanScore + ", Computer: " + computerScore + ", Draws: " + draws);
 }
 
 const buttons = document.querySelector("#buttons");

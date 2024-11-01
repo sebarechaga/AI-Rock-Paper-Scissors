@@ -4,21 +4,61 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rock Paper Scissors</title>
+    <link rel="stylesheet" href="styles.css">
     <script src="script.js" defer></script>
 </head>
 <body>
-    <h1>Rock Paper Scissors</h1>
-    <div id="buttons">
-        <button class="btn" id="rock">Rock</button>
-        <button class="btn" id="paper">Paper</button>
-        <button class="btn" id="scissors">Scissors</button>
-    </div>
-    <div id="results">
-        <h3>Results:</h3>
-        <p id="current-round"></p>
-        <p id="current-score"></p>
-        <p id="computer-chooses"></p>
-        <p id="round-result"></p>
-    </div>
+    <header>
+        <h1>Rock Paper Scissors AI</h1>
+        <p>Choose Rock, Paper, or Scissors. The AI will try to predict your next move.</p>
+    </header>
+    <main>
+        <div id="game">
+            <div id="scoreboard">
+                <h3>Scoreboard:</h3>
+                <p id="current-score"></p>
+            </div>
+            <div id="buttons">
+                <button class="btn" id="rock">Rock</button>
+                <button class="btn" id="paper">Paper</button>
+                <button class="btn" id="scissors">Scissors</button>
+            </div>
+            <div id="results">
+                <h3>Results:</h3>
+                <p id="current-round"></p>
+                <p id="computer-chooses"></p>
+                <p id="round-result"></p>
+            </div>
+        </div>
+        <table id="transition-matrix">
+            <tr>
+                <th>Action</th>
+                <th>Rock</th>
+                <th>Paper</th>
+                <th>Scissors</th>
+            </tr>
+            <tr>
+                <th>Rock</th>
+                <td class="cell">N/A</td>
+                <td class="cell">N/A</td>
+                <td class="cell">N/A</td>
+            </tr>
+            <tr>
+                <th>Paper</th>
+                <td class="cell">N/A</td>
+                <td class="cell">N/A</td>
+                <td class="cell">N/A</td>
+            </tr>
+            <tr>
+                <th>Scissors</th>
+                <td class="cell">N/A</td>
+                <td class="cell">N/A</td>
+                <td class="cell">N/A</td>
+            </tr>
+        </table>
+    </main>
+    <footer>
+        <p>By Sebastian Arechaga, for CS-3642</p>
+    </footer>
 </body>
 </html>
