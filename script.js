@@ -3,23 +3,42 @@ let computerScore = 0;
 let draws = 0;
 let round = 1;
 let gameWon = false;
-let transitionMatrix = [
-    [0, 0, 0],
-    [0, 0, 0],
-    [0, 0, 0],
-]
+const moves = ['R', 'P', 'S'];
+const transitionMatrixTrigram = {
+    RR: [0, 0, 0],
+    RP: [0, 0, 0],
+    RS: [0, 0, 0],
+    PR: [0, 0, 0],
+    PP: [0, 0, 0],
+    PS: [0, 0, 0],
+    SR: [0, 0, 0],
+    SP: [0, 0, 0],
+    SS: [0, 0, 0]
+};
+const transitionMatrixBigram = {
+    R: [0, 0, 0],
+    P: [0, 0, 0],
+    S: [0, 0, 0]
+};
+let lastMoves = [];
 
 function getComputerChoice() {
     let computerChoice = Math.floor(Math.random() * 3);
+    if (lastMoves.length === 2) {
+        let trigram = checkTrigramMatrix();
+        if (trigram[0] > 0) {
+            computerChoice = moves.indexOf(counter(moves[trigram[1]]));
+        }
+    }
     switch (computerChoice) {
         case 0:
-            return "rock";
+            return 'R';
             break;
         case 1:
-            return "paper";
+            return 'P';
             break;
         case 2:
-            return "scissors";
+            return 'S';
             break;
     }
 }
@@ -30,13 +49,13 @@ function getHumanChoice(e) {
 
     switch (id) {
         case "rock":
-            humanChoice = "rock";
+            humanChoice = 'R';
             break;
         case "paper":
-            humanChoice = "paper";
+            humanChoice = 'P';
             break;
         case "scissors":
-            humanChoice = "scissors";
+            humanChoice = 'S';
             break;
         default:
             humanChoice = "error";
@@ -47,7 +66,7 @@ function getHumanChoice(e) {
 
 function isValidChoice(choice) {
     choice = choice.toLowerCase();
-    if (choice === "rock" || choice === "paper" || choice === "scissors") {
+    if (choice === 'R' || choice === 'P' || choice === 'S') {
         return true;
     }
     return false;
@@ -66,9 +85,6 @@ function determineWinner() {
     }
 }
 function playGame(e) {
-
-    updateDecisionMatrix();
-
     function playRound(humanChoice, computerChoice) {
 
         results.removeChild(results.lastChild);
@@ -82,53 +98,53 @@ function playGame(e) {
         computerChoiceText.textContent = ("Computer chooses: " + computerChoice);
 
         switch (humanChoice) {
-            case "rock":
-                if (computerChoice === "rock") {
+            case 'R':
+                if (computerChoice === 'R') {
                     resultText.textContent = ("You both picked rock. Try again.");
                     draws++;
                 }
-                else if (computerChoice === "paper") {
+                else if (computerChoice === 'P') {
                     resultText.textContent = ("Paper beats rock. You lose.");
                     round++;
                     computerScore++;
                 }
-                else if (computerChoice === "scissors") {
+                else if (computerChoice === 'S') {
                     resultText.textContent = ("Rock beats scissors. You win.");
                     round++;
                     humanScore++;
                 }
                 break;
-            case "paper": 
+            case 'P': 
                 switch (computerChoice) {
-                    case "rock":
+                    case 'R':
                         resultText.textContent = ("Paper beats rock. You win.");
                         round++;
                         humanScore++;
                         break;
-                    case "paper":
+                    case 'P':
                         resultText.textContent = ("You both chose paper. Try again.");
                         draws++;
                         break;
-                    case "scissors":
+                    case 'S':
                         resultText.textContent = ("Scissors beats paper. You lose.");
                         round++;
                         computerScore++;
                         break;
                 }
                 break;
-            case "scissors":
+            case 'S':
                 switch (computerChoice) {
-                    case "rock":
+                    case 'R':
                         resultText.textContent = ("Rock beats scissors. You lose.");
                         round++;
                         computerScore++;
                         break;
-                    case "paper":
+                    case 'P':
                         resultText.textContent = ("Scissors beats paper. You win.");
                         round++;
                         humanScore++;
                         break;
-                    case "scissors":
+                    case 'S':
                         resultText.textContent = ("You both chose scissors. Try again.");
                         draws++;
                         break;
@@ -143,7 +159,7 @@ function playGame(e) {
         roundResult.appendChild(resultText);
         results.appendChild(roundResult);
 
-        updateDecisionMatrix();
+        updateTransitionMatrices(humanChoice);
     }
 
     const humanChoice = getHumanChoice(e);
@@ -155,19 +171,63 @@ function playGame(e) {
 
     determineWinner();
 }
-function updateDecisionMatrix(playerMove, computerMove) {
+function updateTransitionMatrices(playerMove) {
+
+    if(lastMoves.length === 2) {
+        const lastTwoMoves = lastMoves.join('');
+        transitionMatrixTrigram[lastTwoMoves][moves.indexOf(playerMove)] += 1;
+
+        normalizeMatrix(lastTwoMoves);
+    }
+    updateMoveHistory(playerMove);
     updateTable();
 }
 function updateTable() {
-    const table = document.getElementById("transition-matrix");
-    const cells = table.getElementsByClassName("cell");
+    const trigramTable = document.getElementById("trigram-transition-matrix");
+    const cells = trigramTable.getElementsByClassName("cell");
 
-    for (let i = 0; i < 3; i++) {
+    let index = 0;
+    for (const lastMovePair in transitionMatrixTrigram) {
         for (let j = 0; j < 3; j++) {
-            cells[(i * 3) + j].textContent = transitionMatrix[i][j].toFixed(2);
+            cells[index].textContent = transitionMatrixTrigram[lastMovePair][j].toFixed(2);
+            index++;
         }
     }
 }
+function updateMoveHistory(move) {
+    if (lastMoves.length < 2) {
+        lastMoves.push(move);
+    }
+    else {
+        lastMoves.push(move);
+        lastMoves.shift();
+    }
+}
+function counter(move) {
+    return moves[((moves.indexOf(move) + 1) % 3)];
+}
+function checkTrigramMatrix() {
+    const lastTwoMoves = lastMoves.join('');
+    let max = 0;
+    let index = 0;
+    for (let i = 0; i < 3; i++) {
+        if (transitionMatrixTrigram[lastTwoMoves][i] > max) {
+            max = transitionMatrixTrigram[lastTwoMoves][i];
+            index = i;
+        }
+    }
+    if (max === 0) { //if combination has not been played before
+        return -1, -1;
+    }
+    return [max, index];
+}
+function normalizeMatrix(lastTwoMoves) {
+    const total = transitionMatrixTrigram[lastTwoMoves].reduce((a, b) => a + b, 0);
+    if (total > 0) {
+        transitionMatrixTrigram[lastTwoMoves] = transitionMatrixTrigram[lastTwoMoves].map(count => count / total);
+    }
+}
+
 function scoreString() {
     return ("You: " + humanScore + ", Computer: " + computerScore + ", Draws: " + draws);
 }

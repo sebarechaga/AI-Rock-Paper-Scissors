@@ -30,32 +30,100 @@
                 <p id="round-result"></p>
             </div>
         </div>
-        <table id="transition-matrix">
-            <tr>
-                <th>Action</th>
-                <th>Rock</th>
-                <th>Paper</th>
-                <th>Scissors</th>
-            </tr>
-            <tr>
-                <th>Rock</th>
-                <td class="cell">N/A</td>
-                <td class="cell">N/A</td>
-                <td class="cell">N/A</td>
-            </tr>
-            <tr>
-                <th>Paper</th>
-                <td class="cell">N/A</td>
-                <td class="cell">N/A</td>
-                <td class="cell">N/A</td>
-            </tr>
-            <tr>
-                <th>Scissors</th>
-                <td class="cell">N/A</td>
-                <td class="cell">N/A</td>
-                <td class="cell">N/A</td>
-            </tr>
-        </table>
+        <div class="matrix">
+            <h3>Bigram Transition Matrix</h3>
+            <table id="bigram-transition-matrix">
+                <tr>
+                    <th>Action</th>
+                    <th>R</th>
+                    <th>P</th>
+                    <th>S</th>
+                </tr>
+                <tr>
+                    <th>R</th>
+                    <td class="cell">N/A</td>
+                    <td class="cell">N/A</td>
+                    <td class="cell">N/A</td>
+                </tr>
+                <tr>
+                    <th>P</th>
+                    <td class="cell">N/A</td>
+                    <td class="cell">N/A</td>
+                    <td class="cell">N/A</td>
+                </tr>
+                <tr>
+                    <th>S</th>
+                    <td class="cell">N/A</td>
+                    <td class="cell">N/A</td>
+                    <td class="cell">N/A</td>
+                </tr>
+            </table>
+        </div>
+        <div class="matrix">
+            <h3>Trigram Transition Matrix</h3>
+            <table id="trigram-transition-matrix">
+                <tr>
+                    <th>Action</th>
+                    <th>R</th>
+                    <th>P</th>
+                    <th>S</th>
+                </tr>
+                <tr>
+                    <th>RR</th>
+                    <td class="cell">N/A</td>
+                    <td class="cell">N/A</td>
+                    <td class="cell">N/A</td>
+                </tr>
+                <tr>
+                    <th>RP</th>
+                    <td class="cell">N/A</td>
+                    <td class="cell">N/A</td>
+                    <td class="cell">N/A</td>
+                </tr>
+                <tr>
+                    <th>RS</th>
+                    <td class="cell">N/A</td>
+                    <td class="cell">N/A</td>
+                    <td class="cell">N/A</td>
+                </tr>
+                <tr>
+                    <th>PR</th>
+                    <td class="cell">N/A</td>
+                    <td class="cell">N/A</td>
+                    <td class="cell">N/A</td>
+                </tr>
+                <tr>
+                    <th>PP</th>
+                    <td class="cell">N/A</td>
+                    <td class="cell">N/A</td>
+                    <td class="cell">N/A</td>
+                </tr>
+                <tr>
+                    <th>PS</th>
+                    <td class="cell">N/A</td>
+                    <td class="cell">N/A</td>
+                    <td class="cell">N/A</td>
+                </tr>
+                <tr>
+                    <th>SR</th>
+                    <td class="cell">N/A</td>
+                    <td class="cell">N/A</td>
+                    <td class="cell">N/A</td>
+                </tr>
+                <tr>
+                    <th>SP</th>
+                    <td class="cell">N/A</td>
+                    <td class="cell">N/A</td>
+                    <td class="cell">N/A</td>
+                </tr>
+                <tr>
+                    <th>SS</th>
+                    <td class="cell">N/A</td>
+                    <td class="cell">N/A</td>
+                    <td class="cell">N/A</td>
+                </tr>
+            </table>
+        </div>
     </main>
     <footer>
         <p>By Sebastian Arechaga, for CS-3642</p>
