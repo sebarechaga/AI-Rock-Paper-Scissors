@@ -65,7 +65,6 @@ function getHumanChoice(e) {
 }
 
 function isValidChoice(choice) {
-    choice = choice.toLowerCase();
     if (choice === 'R' || choice === 'P' || choice === 'S') {
         return true;
     }
@@ -165,32 +164,50 @@ function playGame(e) {
     const humanChoice = getHumanChoice(e);
     const computerChoice = getComputerChoice();
 
-    if (!gameWon) {
+    if (!gameWon && isValidChoice(humanChoice)) {
         playRound(humanChoice, computerChoice);
     }
 
     determineWinner();
 }
 function updateTransitionMatrices(playerMove) {
-
+    if (lastMoves.length > 0) {
+        transitionMatrixBigram[lastMoves[lastMoves.length - 1]][moves.indexOf(playerMove)] += 1;
+    }
     if(lastMoves.length === 2) {
         const lastTwoMoves = lastMoves.join('');
         transitionMatrixTrigram[lastTwoMoves][moves.indexOf(playerMove)] += 1;
-
-        normalizeMatrix(lastTwoMoves);
     }
+    updateTables();
     updateMoveHistory(playerMove);
-    updateTable();
-}
-function updateTable() {
-    const trigramTable = document.getElementById("trigram-transition-matrix");
-    const cells = trigramTable.getElementsByClassName("cell");
 
-    let index = 0;
-    for (const lastMovePair in transitionMatrixTrigram) {
-        for (let j = 0; j < 3; j++) {
-            cells[index].textContent = transitionMatrixTrigram[lastMovePair][j].toFixed(2);
-            index++;
+}
+function updateTables() {
+    const trigramTable = document.getElementById("trigram-transition-matrix");
+    const bigramTable = document.getElementById("bigram-transition-matrix");
+    const bigramCells = bigramTable.getElementsByClassName("cell")
+    const trigramCells = trigramTable.getElementsByClassName("cell"); 
+
+    if (lastMoves.length > 0) {
+        let bigramProbability = normalizeBigramMatrix();
+        
+        let index = 0;
+        for (const lastMove in bigramProbability) {
+            for (let j = 0; j < 3; j++) {
+                bigramCells[index].textContent = bigramProbability[lastMove][j].toFixed(2);
+                index++;
+            }
+        }
+    }
+    if (lastMoves.length === 2) {
+        let trigramProbability = normalizeTrigramMatrix();
+
+        let index = 0;
+        for (const lastMovePair in trigramProbability) {
+            for (let j = 0; j < 3; j++) {
+                trigramCells[index].textContent = trigramProbability[lastMovePair][j].toFixed(2);
+                index++;
+            }
         }
     }
 }
@@ -221,13 +238,26 @@ function checkTrigramMatrix() {
     }
     return [max, index];
 }
-function normalizeMatrix(lastTwoMoves) {
-    const total = transitionMatrixTrigram[lastTwoMoves].reduce((a, b) => a + b, 0);
-    if (total > 0) {
-        transitionMatrixTrigram[lastTwoMoves] = transitionMatrixTrigram[lastTwoMoves].map(count => count / total);
+function normalizeTrigramMatrix() {
+    const normalized = JSON.parse(JSON.stringify(transitionMatrixTrigram));
+    for (const lastMovePair in normalized) {
+        const total = normalized[lastMovePair].reduce((a, b) => a + b, 0);
+        if (total > 0) {
+            normalized[lastMovePair] = transitionMatrixTrigram[lastMovePair].map(count => count / total);
+        }
     }
+    return normalized;
 }
-
+function normalizeBigramMatrix() {
+    const normalized = JSON.parse(JSON.stringify(transitionMatrixBigram));
+    for (const lastMove in normalized) {
+        const total = normalized[lastMove].reduce((a, b) => a + b, 0);
+        if (total > 0) {
+            normalized[lastMove] = transitionMatrixBigram[lastMove].map(count => count / total);
+        }
+    }
+    return normalized;
+}
 function scoreString() {
     return ("You: " + humanScore + ", Computer: " + computerScore + ", Draws: " + draws);
 }
@@ -240,8 +270,5 @@ const currentScore = document.querySelector("#current-score");
 currentScore.textContent = scoreString();
 
 const winner = document.createElement("p");
-//const rock = document.querySelector("#rock");
-//const paper = document.querySelector("#paper");
-//const scissors = document.querySelector("#scissors");
 
 buttons.addEventListener("click", (e) => {playGame(e);});
