@@ -3,6 +3,7 @@ let computerScore = 0;
 let draws = 0;
 let round = 1;
 let gameWon = false;
+let choseFrom = -1;
 const moves = ['R', 'P', 'S'];
 const transitionMatrixTrigram = {
     RR: [0, 0, 0],
@@ -23,7 +24,6 @@ const transitionMatrixBigram = {
 let lastMoves = [];
 
 function getComputerChoice() {
-    //let computerChoice = Math.floor(Math.random() * 3);
     let bigramProbability = 0;
     let trigramProbability = 0;
     let bigramChoice;
@@ -63,18 +63,23 @@ function decide(bp, bc, tp, tc) {
         bp *= 0.6;
         tp *= 0.4;
         if (bp >= tp) {
+            choseFrom = 1;
             return bc;
         }
         else if (bp < tp) {
+            choseFrom = 2;
             return tc;
         }
     }
     if (bp > 0) {
+        choseFrom = 1;
         return bc;
     }
     if (tp > 0) {
+        choseFrom = 2;
         return tc;
     }
+    choseFrom = 0;
     return (Math.floor(Math.random() * 3));
 }
 function getHumanChoice(e) {
@@ -97,7 +102,18 @@ function getHumanChoice(e) {
     }
     return humanChoice;
 }
-
+function choseFromString() {
+    switch(choseFrom) {
+        case 0:
+            return "Computer chose this option randomly.";
+        case 1:
+            return "Computer chose this option from the bigram transition matrix";
+        case 2:
+            return "Computer chose this option from the trigram transition matrix";
+        default:
+            return "error";
+    }
+}
 function isValidChoice(choice) {
     if (choice === 'R' || choice === 'P' || choice === 'S') {
         return true;
@@ -125,10 +141,12 @@ function playGame(e) {
         let roundResult = document.createElement("div");
         let humanChoiceText = document.createElement("p");
         let computerChoiceText = document.createElement("p");
+        let choseFromText = document.createElement("p");
         let resultText = document.createElement("p");
 
         humanChoiceText.textContent = ("You chose: " + choiceString(humanChoice));
         computerChoiceText.textContent = ("Computer chooses: " + choiceString(computerChoice));
+        choseFromText.textContent = choseFromString();
 
         switch (humanChoice) {
             case 'R':
@@ -189,6 +207,7 @@ function playGame(e) {
         
         roundResult.appendChild(humanChoiceText);
         roundResult.appendChild(computerChoiceText);
+        roundResult.appendChild(choseFromText);
         roundResult.appendChild(resultText);
         results.appendChild(roundResult);
 
