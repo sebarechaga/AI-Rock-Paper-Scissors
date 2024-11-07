@@ -23,13 +23,29 @@ const transitionMatrixBigram = {
 let lastMoves = [];
 
 function getComputerChoice() {
-    let computerChoice = Math.floor(Math.random() * 3);
+    //let computerChoice = Math.floor(Math.random() * 3);
+    let bigramProbability = 0;
+    let trigramProbability = 0;
+    let bigramChoice;
+    let trigramChoice;
+
+    if (lastMoves.length > 0) {
+        let bigram = checkBigramMatrix();
+        if (bigram[0] > 0) {
+            bigramProbability = bigram[0];
+            bigramChoice = moves.indexOf(counter(moves[bigram[1]]));
+        }
+    }
     if (lastMoves.length === 2) {
         let trigram = checkTrigramMatrix();
         if (trigram[0] > 0) {
-            computerChoice = moves.indexOf(counter(moves[trigram[1]]));
+            trigramProbability = trigram[0];
+            trigramChoice = moves.indexOf(counter(moves[trigram[1]]));
         }
     }
+
+    computerChoice = decide(bigramProbability, bigramChoice, trigramProbability, trigramChoice);
+
     switch (computerChoice) {
         case 0:
             return 'R';
@@ -42,7 +58,25 @@ function getComputerChoice() {
             break;
     }
 }
-
+function decide(bp, bc, tp, tc) {
+    if (bp > 0 && tp > 0) {
+        bp *= 0.6;
+        tp *= 0.4;
+        if (bp >= tp) {
+            return bc;
+        }
+        else if (bp < tp) {
+            return tc;
+        }
+    }
+    if (bp > 0) {
+        return bc;
+    }
+    if (tp > 0) {
+        return tc;
+    }
+    return (Math.floor(Math.random() * 3));
+}
 function getHumanChoice(e) {
     let humanChoice;
     let id = e.target.id;
@@ -93,8 +127,8 @@ function playGame(e) {
         let computerChoiceText = document.createElement("p");
         let resultText = document.createElement("p");
 
-        humanChoiceText.textContent = ("You chose: " + humanChoice);
-        computerChoiceText.textContent = ("Computer chooses: " + computerChoice);
+        humanChoiceText.textContent = ("You chose: " + choiceString(humanChoice));
+        computerChoiceText.textContent = ("Computer chooses: " + choiceString(computerChoice));
 
         switch (humanChoice) {
             case 'R':
@@ -189,23 +223,23 @@ function updateTables() {
     const trigramCells = trigramTable.getElementsByClassName("cell"); 
 
     if (lastMoves.length > 0) {
-        let bigramProbability = normalizeBigramMatrix();
+        let normalizedBigram = normalizeBigramMatrix();
         
         let index = 0;
-        for (const lastMove in bigramProbability) {
+        for (const lastMove in normalizedBigram) {
             for (let j = 0; j < 3; j++) {
-                bigramCells[index].textContent = bigramProbability[lastMove][j].toFixed(2);
+                bigramCells[index].textContent = normalizedBigram[lastMove][j].toFixed(2);
                 index++;
             }
         }
     }
     if (lastMoves.length === 2) {
-        let trigramProbability = normalizeTrigramMatrix();
+        let normalizedTrigram = normalizeTrigramMatrix();
 
         let index = 0;
-        for (const lastMovePair in trigramProbability) {
+        for (const lastMovePair in normalizedTrigram) {
             for (let j = 0; j < 3; j++) {
-                trigramCells[index].textContent = trigramProbability[lastMovePair][j].toFixed(2);
+                trigramCells[index].textContent = normalizedTrigram[lastMovePair][j].toFixed(2);
                 index++;
             }
         }
@@ -227,16 +261,37 @@ function checkTrigramMatrix() {
     const lastTwoMoves = lastMoves.join('');
     let max = 0;
     let index = 0;
+    let total = 0;
+
     for (let i = 0; i < 3; i++) {
+        total += transitionMatrixTrigram[lastTwoMoves][i];
         if (transitionMatrixTrigram[lastTwoMoves][i] > max) {
             max = transitionMatrixTrigram[lastTwoMoves][i];
             index = i;
         }
     }
     if (max === 0) { //if combination has not been played before
-        return -1, -1;
+        return [-1, -1];
     }
-    return [max, index];
+    return [max/total, index];
+}
+function checkBigramMatrix() {
+    const lastMove = lastMoves[lastMoves.length - 1];
+    let max = 0;
+    let index = 0;
+    let total = 0;
+
+    for (let i = 0; i < 3; i++) {
+        total += transitionMatrixBigram[lastMove][i];
+        if (transitionMatrixBigram[lastMove][i] > max) {
+            max = transitionMatrixBigram[lastMove][i];
+            index = i
+        }
+    }
+    if (max === 0) { //if combination has not been played before
+        return [-1, -1];
+    }
+    return [max/total, index];
 }
 function normalizeTrigramMatrix() {
     const normalized = JSON.parse(JSON.stringify(transitionMatrixTrigram));
@@ -260,6 +315,18 @@ function normalizeBigramMatrix() {
 }
 function scoreString() {
     return ("You: " + humanScore + ", Computer: " + computerScore + ", Draws: " + draws);
+}
+function choiceString(choice) {
+    switch (choice) {
+        case 'R':
+            return "rock";
+        case 'P':
+            return "paper";
+        case 'S':
+            return "scissors";
+        default:
+            return "error";
+    }
 }
 
 const buttons = document.querySelector("#buttons");
